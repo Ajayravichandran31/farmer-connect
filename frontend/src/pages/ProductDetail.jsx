@@ -1,13 +1,20 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import { listings } from '../data/listings.js'
 
 export default function ProductDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const item = listings.find((l) => l.id === Number(id)) || listings[0]
   const [qty, setQty] = useState(1)
+
+  const handleAddToBasket = () => {
+    // In the real app: POST /api/cart, then navigate to /cart either way.
+    navigate(user ? '/cart' : '/login')
+  }
 
   const total = item.price * qty
   const savingsPct = item.mandi ? Math.round(((item.mandi - item.price) / item.mandi) * 100) : null
@@ -41,8 +48,8 @@ export default function ProductDetail() {
                 <span>{qty} {item.unit}</span>
                 <button onClick={() => setQty(qty + 1)}>+</button>
               </div>
-              <button className="btn-pin" onClick={() => navigate('/cart')}>
-                Add to basket — ₹{total}
+              <button className="btn-pin" onClick={handleAddToBasket}>
+                {user ? `Add to basket — ₹${total}` : 'Sign in to order'}
               </button>
             </div>
 

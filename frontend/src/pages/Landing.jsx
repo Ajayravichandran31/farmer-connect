@@ -19,7 +19,7 @@ export default function Landing() {
             </p>
             <div className="hero-actions">
               <Link to="/shop" className="btn-mint">See what's pinned</Link>
-              <Link to="/dashboard" className="btn-outline">Post your harvest →</Link>
+              <Link to="/sell" className="btn-outline">Post your harvest →</Link>
             </div>
           </div>
 

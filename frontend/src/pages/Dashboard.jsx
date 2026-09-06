@@ -1,3 +1,6 @@
+import { Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext.jsx'
+
 const salesByDay = [
   { day: 'Mon', height: 60 }, { day: 'Tue', height: 90 }, { day: 'Wed', height: 75 },
   { day: 'Thu', height: 110 }, { day: 'Fri', height: 95 }, { day: 'Sat', height: 130 }, { day: 'Sun', height: 70 },
@@ -10,20 +13,24 @@ const myListings = [
 ]
 
 export default function Dashboard() {
+  const { user, logout } = useAuth()
+  const firstName = user?.name?.split(' ').pop() || 'there'
+
   return (
     <>
       <header>
         <div className="wrap header-row">
           <span className="brand">The Local Board</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 14 }}>K. Selvam</span>
+            <span style={{ fontSize: 14 }}>{user?.name}</span>
             <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'var(--sky)', boxShadow: '1px 2px 0 rgba(0,0,0,0.15)' }}></div>
+            <button onClick={logout} className="pin-btn">Log out</button>
           </div>
         </div>
       </header>
 
       <div className="wrap">
-        <h1 className="pin-title" style={{ fontSize: 26 }}>Good evening, Selvam 👋</h1>
+        <h1 className="pin-title" style={{ fontSize: 26 }}>Good evening, {firstName} 👋</h1>
 
         <div className="stat-row">
           <Stat label="This week's sales" value="₹9,240" sub="↑ 12% vs last week" />
@@ -35,7 +42,7 @@ export default function Dashboard() {
         <div className="layout-2col">
           <div>
             <div className="panel">
-              <div className="panel-head"><h3>Sales this week</h3><a href="#">View report →</a></div>
+              <div className="panel-head"><h3>Sales this week</h3><Link to="/dashboard/reports">View report →</Link></div>
               <div className="chart">
                 {salesByDay.map((d) => (
                   <div className="bar-col" key={d.day}>
@@ -47,7 +54,7 @@ export default function Dashboard() {
             </div>
 
             <div className="panel">
-              <div className="panel-head"><h3>My pinned listings</h3><a href="#">Manage all →</a></div>
+              <div className="panel-head"><h3>My pinned listings</h3><Link to="/dashboard/listings">Manage all →</Link></div>
               {myListings.map((l) => (
                 <div className="listing-row" key={l.name}>
                   <div className="photo"></div>
@@ -56,7 +63,7 @@ export default function Dashboard() {
                     <div className="meta">{l.price} · {l.age}</div>
                   </div>
                   <span className={`stock ${l.low ? 'low' : 'ok'}`}>{l.stock}</span>
-                  <a href="#" style={{ fontSize: 12.5, color: 'var(--twine)', fontWeight: 600 }}>Edit</a>
+                  <Link to="/dashboard/listings" style={{ fontSize: 12.5, color: 'var(--twine)', fontWeight: 600 }}>Edit</Link>
                 </div>
               ))}
             </div>
@@ -66,7 +73,7 @@ export default function Dashboard() {
             <div className="panel">
               <div className="panel-head"><h3>Pin new harvest</h3></div>
               <p className="advisory">Add today's crop, quantity, and price — it'll show alongside the current mandi rate automatically.</p>
-              <a href="#" className="pin-new" style={{ marginTop: 16 }}>+ Pin new harvest</a>
+              <Link to="/dashboard/new" className="pin-new" style={{ marginTop: 16 }}>+ Pin new harvest</Link>
             </div>
 
             <div className="panel">
