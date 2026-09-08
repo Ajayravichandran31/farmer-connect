@@ -1,6 +1,7 @@
 package com.farmerconnect.backend.controller;
 
 import com.farmerconnect.backend.dto.RegisterRequest;
+import com.farmerconnect.backend.dto.LoginRequest;
 import com.farmerconnect.backend.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,5 +26,14 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body("User registered successfully");
+    }
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest request) {
+
+        String token = userService.loginUser(request);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(token);
     }
 }
