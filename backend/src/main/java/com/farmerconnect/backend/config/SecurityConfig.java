@@ -33,6 +33,13 @@ public class SecurityConfig {
                                 "/api/auth/register",
                                 "/api/auth/login"
                         ).permitAll()
+
+                        .requestMatchers("/api/farmer/**")
+                        .hasRole("FARMER")
+
+                        .requestMatchers("/api/buyer/**")
+                        .hasRole("BUYER")
+
                         .anyRequest().authenticated()
                 );
 
