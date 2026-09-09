@@ -55,6 +55,9 @@ public class UserService {
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
-        return jwtUtil.generateToken(user.getEmail());
+        return jwtUtil.generateToken(
+                user.getEmail(),
+                user.getRole().name()
+        );
     }
 }
