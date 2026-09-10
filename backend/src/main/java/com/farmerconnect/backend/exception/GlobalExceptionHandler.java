@@ -5,12 +5,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import com.farmerconnect.backend.exception.BuyerProfileAlreadyExistsException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public   class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationErrors(
@@ -58,6 +59,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FarmerProfileAlreadyExistsException.class)
     public ResponseEntity<Map<String, String>> handleFarmerProfileAlreadyExists(
             FarmerProfileAlreadyExistsException exception) {
+
+        Map<String, String> error = new HashMap<>();
+
+        error.put("error", exception.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(error);
+    }
+    @ExceptionHandler(BuyerProfileAlreadyExistsException.class)
+    public ResponseEntity<Map<String, String>> handleBuyerProfileAlreadyExists(
+            BuyerProfileAlreadyExistsException exception) {
 
         Map<String, String> error = new HashMap<>();
 
