@@ -5,6 +5,7 @@ import com.farmerconnect.backend.entity.User;
 import com.farmerconnect.backend.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.farmerconnect.backend.dto.ProductResponse;
 
 import java.util.List;
 
@@ -24,6 +25,24 @@ public class ProductService {
     public List<Product> getProductsByFarmer(User farmer) {
 
         return productRepository.findByFarmerId(farmer.getId());
+    }
+    public List<ProductResponse> getAllProducts() {
+
+        List<Product> products = productRepository.findAll();
+
+        return products.stream()
+                .map(product -> new ProductResponse(
+                        product.getId(),
+                        product.getProductName(),
+                        product.getCategory(),
+                        product.getPrice(),
+                        product.getQuantity(),
+                        product.getDescription(),
+                        product.getCreatedAt(),
+                        product.getFarmer().getId(),
+                        product.getFarmer().getName()
+                ))
+                .toList();
     }
     public Product updateProduct(Long productId, Product updatedProduct, User farmer) {
 
