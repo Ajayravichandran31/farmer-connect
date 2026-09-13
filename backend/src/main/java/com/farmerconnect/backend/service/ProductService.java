@@ -6,6 +6,7 @@ import com.farmerconnect.backend.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.farmerconnect.backend.dto.ProductResponse;
+import com.farmerconnect.backend.exception.ProductNotFoundException;
 
 import java.util.List;
 
@@ -44,6 +45,25 @@ public class ProductService {
                 ))
                 .toList();
     }
+
+    public ProductResponse getProductById(Long productId) {
+
+    Product product = productRepository.findById(productId)
+            .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+
+    return new ProductResponse(
+            product.getId(),
+            product.getProductName(),
+            product.getCategory(),
+            product.getPrice(),
+            product.getQuantity(),
+            product.getDescription(),
+            product.getCreatedAt(),
+            product.getFarmer().getId(),
+            product.getFarmer().getName()
+    );
+}
+
     public Product updateProduct(Long productId, Product updatedProduct, User farmer) {
 
         Product existingProduct = productRepository
