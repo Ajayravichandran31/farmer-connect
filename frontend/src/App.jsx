@@ -10,6 +10,7 @@ import ManageListings from './pages/ManageListings.jsx'
 import SalesReport from './pages/SalesReport.jsx'
 import SellPublic from './pages/SellPublic.jsx'
 import Auth from './pages/Auth.jsx'
+import FarmerOrders from './pages/FarmerOrders.jsx'
 
 export default function App() {
   return (
@@ -39,6 +40,9 @@ export default function App() {
       <Route path="/dashboard/reports" element={
         <ProtectedRoute role="farmer"><SalesReport /></ProtectedRoute>
       } />
+      <Route path="/dashboard/orders" element={
+        <ProtectedRoute role="farmer"><FarmerOrders /></ProtectedRoute>
+        } />
     </Routes>
   )
 }
