@@ -14,7 +14,7 @@ const myListings = [
 
 export default function Dashboard() {
   const { user, logout } = useAuth()
-  const firstName = user?.name?.split(' ').pop() || 'there'
+  const firstName = user?.name || 'there'
 
   return (
     <>
@@ -22,10 +22,11 @@ export default function Dashboard() {
         <div className="wrap header-row">
           <span className="brand">The Local Board</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 14 }}>{user?.name}</span>
-            <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'var(--sky)', boxShadow: '1px 2px 0 rgba(0,0,0,0.15)' }}></div>
-            <button onClick={logout} className="pin-btn">Log out</button>
-          </div>
+  <Link to="/dashboard/orders" className="pin-btn">Orders</Link>
+  <span style={{ fontSize: 14 }}>{user?.name}</span>
+  <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'var(--sky)', boxShadow: '1px 2px 0 rgba(0,0,0,0.15)' }}></div>
+  <button onClick={logout} className="pin-btn">Log out</button>
+</div>
         </div>
       </header>
 

@@ -18,10 +18,13 @@ export default function Navbar() {
           <Link to="/shop">Pinned today</Link>
           <Link to="/shop">Weekly box</Link>
           {user?.role === 'farmer' ? (
+            <>
             <Link to="/dashboard">Dashboard</Link>
-          ) : (
+            <Link to="/dashboard/orders">Orders</Link>
+            </>
+            ) : (
             <Link to="/sell">Farmers</Link>
-          )}
+            )}
           {user?.role === 'buyer' && <Link to="/cart">Basket</Link>}
         </nav>
 

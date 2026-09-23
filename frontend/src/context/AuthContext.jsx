@@ -2,17 +2,67 @@ import { createContext, useContext, useState } from 'react'
 
 const AuthContext = createContext(null)
 
-// In the real app, login() will call POST /api/auth/login, receive a JWT,
-// store it, and decode the user's name + role from the response instead
-// of accepting them as plain arguments like this mock version does.
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null) // null | { name: string, role: 'buyer' | 'farmer' }
+function getUserFromToken(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
 
-  const login = (name, role) => setUser({ name, role })
-  const logout = () => setUser(null)
+    return {
+      email: payload.sub,
+      role: payload.role?.toLowerCase(),
+    }
+  } catch {
+    return null
+  }
+}
+
+export function AuthProvider({ children }) {
+  const [token, setToken] = useState(
+    () => localStorage.getItem('token')
+  )
+
+  const [user, setUser] = useState(() => {
+    const savedToken = localStorage.getItem('token')
+    return savedToken ? getUserFromToken(savedToken) : null
+  })
+
+  const login = async (newToken) => {
+  localStorage.setItem('token', newToken)
+  setToken(newToken)
+
+  const tokenUser = getUserFromToken(newToken)
+
+  try {
+    const response = await fetch('http://localhost:8080/api/farmer/profile', {
+      headers: {
+        Authorization: `Bearer ${newToken}`,
+      },
+    })
+
+    if (response.ok) {
+      const profile = await response.json()
+
+      setUser({
+        ...tokenUser,
+        name: profile.farmerName,
+      })
+
+      return
+    }
+  } catch {
+    // Keep token-based user information if profile loading fails
+  }
+
+  setUser(tokenUser)
+}
+
+  const logout = () => {
+    localStorage.removeItem('token')
+    setToken(null)
+    setUser(null)
+  }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

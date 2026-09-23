@@ -11,8 +11,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.farmerconnect.backend.dto.OrderResponse;
+import com.farmerconnect.backend.exception.OrderNotFoundException;
+
+import java.util.List;
 
 import java.math.BigDecimal;
+import com.farmerconnect.backend.dto.UpdateOrderStatusRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +52,73 @@ public class OrderService {
         order.setStatus(OrderStatus.PENDING);
 
         return orderRepository.save(order);
+    }
+
+    public List<OrderResponse> getFarmerOrders(User farmer) {
+
+        return orderRepository.findByProductFarmerId(farmer.getId())
+                .stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
+
+    public OrderResponse getFarmerOrder(Long orderId, User farmer) {
+
+        Order order = orderRepository
+                .findByIdAndProductFarmerId(orderId, farmer.getId())
+                .orElseThrow(() ->
+                        new OrderNotFoundException("Order not found"));
+
+        return convertToResponse(order);
+    }
+
+    @Transactional
+    public OrderResponse updateFarmerOrderStatus(
+            Long orderId,
+            UpdateOrderStatusRequest request,
+            User farmer) {
+
+        Order order = orderRepository
+                .findByIdAndProductFarmerId(orderId, farmer.getId())
+                .orElseThrow(() ->
+                        new OrderNotFoundException("Order not found"));
+
+        OrderStatus currentStatus = order.getStatus();
+        OrderStatus newStatus = request.getStatus();
+
+        boolean validTransition =
+                (currentStatus == OrderStatus.PENDING &&
+                        (newStatus == OrderStatus.CONFIRMED ||
+                                newStatus == OrderStatus.CANCELLED))
+                        ||
+                        (currentStatus == OrderStatus.CONFIRMED &&
+                                newStatus == OrderStatus.PROCESSING)
+                        ||
+                        (currentStatus == OrderStatus.PROCESSING &&
+                                newStatus == OrderStatus.SHIPPED)
+                        ||
+                        (currentStatus == OrderStatus.SHIPPED &&
+                                newStatus == OrderStatus.DELIVERED);
+
+        if (!validTransition) {
+            throw new IllegalArgumentException(
+                    "Invalid order status transition from "
+                            + currentStatus + " to " + newStatus);
+        }
+
+        if (newStatus == OrderStatus.CANCELLED) {
+            Product product = order.getProduct();
+
+            product.setQuantity(
+                    product.getQuantity() + order.getQuantity()
+            );
+
+            productRepository.save(product);
+        }
+
+        order.setStatus(newStatus);
+
+        return convertToResponse(orderRepository.save(order));
     }
 
     public OrderResponse convertToResponse(Order order) {

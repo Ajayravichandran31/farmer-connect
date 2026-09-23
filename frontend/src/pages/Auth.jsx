@@ -6,17 +6,51 @@ export default function Auth() {
   const [tab, setTab] = useState('signin') // 'signin' | 'signup'
   const [role, setRole] = useState('buyer') // 'buyer' | 'farmer'
   const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
   const { login } = useAuth()
   const navigate = useNavigate()
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // In the real app: call POST /api/auth/login (or /register), store the
-    // returned JWT, and read the name/role from the response instead of
-    // trusting the form directly like this mock version does.
-    login(name || (role === 'farmer' ? 'K. Selvam' : 'Guest'), role)
-    navigate(role === 'farmer' ? '/dashboard' : '/shop')
+  const handleSubmit = async (e) => {
+  e.preventDefault()
+  setError('')
+
+  if (tab === 'signin') {
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      })
+
+      if (!response.ok) {
+        const message = await response.text()
+        throw new Error(message || 'Login failed')
+      }
+
+      const token = await response.text()
+
+      login(token)
+
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      const userRole = payload.role?.toLowerCase()
+
+      navigate(userRole === 'farmer' ? '/dashboard' : '/shop')
+    } catch (error) {
+      setError(error.message)
+    }
+
+    return
   }
+
+  // Registration will be connected next.
+}
 
   return (
     <div className="auth-stage">
@@ -51,13 +85,30 @@ export default function Auth() {
 
           <div className="field">
             <label>Phone number or email</label>
-            <input type="text" placeholder="e.g. 98765 43210" required />
+            <input
+                type="email"
+                placeholder="e.g. farmer@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
           </div>
           <div className="field">
             <label>Password</label>
-            <input type="password" placeholder="••••••••" required />
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
           </div>
 
+          {error && (
+            <p style={{ color: 'crimson', fontSize: 14 }}>
+              {error}
+              </p>
+)}
           <button type="submit" className="btn-pin-lg">{tab === 'signin' ? 'Sign in' : `Create ${role} account`}</button>
           <div className="fine">
             {tab === 'signin' ? (
